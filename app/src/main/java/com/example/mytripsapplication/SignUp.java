@@ -54,22 +54,11 @@ public class SignUp extends AppCompatActivity {
 
 
     private static String TAG = "demo";
-    EditText et_fname,et_lname,et_email,et_password,et_confirm_password;
+    EditText et_email,et_password,et_confirm_password;
     Button btn_signUp,btn_Cancel;
-    Spinner spn_gender;
-    ImageView iv_camera,iv_profilePhoto;
+
 
     private FirebaseAuth mAuth;
-    FirebaseStorage storage;
-    StorageReference storageRef;
-
-    Bitmap bitmap;
-    Boolean isPhotoTaken = false;
-    private static final int REQUEST_IMAGE_CAPTURE = 1;
-    private static int RESULT_LOAD_IMAGE = 2;
-
-
-    ArrayList<String> genders = new ArrayList<String> (Arrays.asList("Female", "Male", "Decline to Identify"));
 
 
     @Override
@@ -79,72 +68,43 @@ public class SignUp extends AppCompatActivity {
         setContentView(R.layout.activity_sign_up);
 
         setTitle("Sign Up");
-        mAuth = FirebaseAuth.getInstance();
-        storage = FirebaseStorage.getInstance();
-        storageRef = storage.getReference();
-        FirebaseApp.initializeApp(this);
 
-        et_fname = findViewById(R.id.et_fname);
-        et_lname = findViewById(R.id.et_lname);
+
         et_email = findViewById(R.id.et_email);
         et_password = findViewById(R.id.et_password);
         et_confirm_password = findViewById(R.id.et_confirm_password);
         btn_signUp = findViewById(R.id.btn_signup);
         btn_Cancel = findViewById(R.id.btn_signup_cancel);
-        spn_gender = findViewById(R.id.spn_gender);
-        iv_profilePhoto = findViewById(R.id.iv_profilePhoto);
 
+        mAuth=FirebaseAuth.getInstance();
 
 
         if (isConnected()) {
-            ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(SignUp.this,android.R.layout.simple_spinner_dropdown_item,genders);
-            dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            spn_gender.setAdapter(dataAdapter);
+
 
             btn_signUp.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(et_fname.getText().toString().trim().equals("")){
-                        Toast.makeText(SignUp.this, "First name cannot be blank.", Toast.LENGTH_SHORT).show();
-                    }
-                    else if(et_lname.getText().toString().trim().equals("")){
-                        Toast.makeText(SignUp.this, "Last name cannot be blank.", Toast.LENGTH_SHORT).show();
-                    }
-                    else if(et_email.getText().toString().trim().equals("")){
-                        Toast.makeText(SignUp.this, "Email cannot be blank.", Toast.LENGTH_SHORT).show();
-                    }
-                    else if(et_password.getText().toString().trim().equals("")){
-                        Toast.makeText(SignUp.this, "Password cannot be blank.", Toast.LENGTH_SHORT).show();
-                    }
-                    else if(et_confirm_password.getText().toString().trim().equals("")){
-                        Toast.makeText(SignUp.this, "Confirm Password cannot be blank.", Toast.LENGTH_SHORT).show();
-                    }
-                    else{
 
-                        if(et_password.getText().toString().trim().compareToIgnoreCase(et_confirm_password.getText().toString().trim()) != 0){
-                            Toast.makeText(SignUp.this, "Passwords do not match", Toast.LENGTH_SHORT).show();
-                        }else{
-                            AddNewUser();
-                        }
-
+                    if(validateInputs()){
+                        String email = et_email.getText().toString().trim();
+                        String password = et_password.getText().toString().trim();
+                        SignUpNewUser(email,password);
                     }
                 }
+
+
             });
 
 
             btn_Cancel.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    FirebaseAuth.getInstance().signOut();
                     finish();
                 }
             });
 
-            iv_profilePhoto.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    MyCustomAlertDialog();
-                }
-            });
 
         }
         else{
@@ -167,172 +127,60 @@ public class SignUp extends AppCompatActivity {
         return true;
     }
 
-    private void dispatchTakePictureIntent() {
+    public boolean validateInputs(){
+        String email = et_email.getText().toString().trim();
+        String password = et_password.getText().toString().trim();
+        String confirm_password = et_confirm_password.getText().toString().trim();
+        if(email!=null && password!=null && confirm_password!=null && !email.equals("") && !password.equals("")
+                && !confirm_password.equals("") && password.equals(confirm_password))
+            if(password.length()>=6)
+                return true;
+            else return false;
+        else{
+            if(email==null || email.equals(""))
+                Toast.makeText(getApplicationContext(), "Email is required", Toast.LENGTH_SHORT).show();
 
-        Intent takePictureIntent = new Intent("android.media.action.IMAGE_CAPTURE");
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-        }
-    }
+            if(password==null || password.equals(""))
+                Toast.makeText(getApplicationContext(), "Password is required", Toast.LENGTH_SHORT).show();
+            if(confirm_password==null || confirm_password.equals(""))
+                Toast.makeText(getApplicationContext(), "Confirm Password is required", Toast.LENGTH_SHORT).show();
 
-    private void dispatchBrowseImageIntent(){
-        Intent i = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        startActivityForResult(i, RESULT_LOAD_IMAGE);
-    }
+            if(!password.equals("") && !confirm_password.equals(""))
+            {
+                if(password.length()<6)
+                    Toast.makeText(getApplicationContext(), "Password must at least be 6 characters", Toast.LENGTH_SHORT).show();
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            Bundle extras = data.getExtras();
-            Bitmap imageBitmap = (Bitmap) extras.get("data");
-            bitmap = imageBitmap;
-            iv_profilePhoto.setImageBitmap(imageBitmap);
-            isPhotoTaken = true;
-        }
-        if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK && null != data) {
-            Uri selectedImage = data.getData();
-            String[] filePathColumn = { MediaStore.Images.Media.DATA };
-
-            Cursor cursor = getContentResolver().query(selectedImage,
-                    filePathColumn, null, null, null);
-            cursor.moveToFirst();
-
-            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-            String picturePath = cursor.getString(columnIndex);
-            cursor.close();
-
-            File imgFile = new  File(picturePath);
-            iv_profilePhoto.setImageBitmap(BitmapFactory.decodeFile(picturePath));
-            Log.d(TAG,"Image path : " + "file://"+picturePath);
-            //imageView.setImageBitmap(BitmapFactory.decodeFile(imgFile.getAbsolutePath()));
-            isPhotoTaken = true;
-        }
-    }
-
-
-    private void MyCustomAlertDialog(){
-        final Dialog MyDialog = new Dialog(SignUp.this);
-        MyDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        MyDialog.setContentView(R.layout.edit_profile_photo);
-
-        ImageView iv_camera = (ImageView) MyDialog.findViewById(R.id.iv_camera);
-        Button btn_upload = (Button) MyDialog.findViewById(R.id.btn_upload);
-
-        iv_camera.setEnabled(true);
-        btn_upload.setEnabled(true);
-
-        iv_camera.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dispatchTakePictureIntent();
-                MyDialog.dismiss();
-            }
-        });
-
-        btn_upload.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dispatchBrowseImageIntent();
-                MyDialog.dismiss();
-            }
-        });
-
-        MyDialog.show();
-    }
-
-    private void AddNewUser(){
-        final String gender = (String) spn_gender.getSelectedItem();
-        final User user = new User(et_fname.getText().toString().trim(),et_lname.getText().toString().trim(),et_email.getText().toString().trim());
-        user.setGender(gender);
-        if(isPhotoTaken){
-            final StorageReference imageStorageRef = storageRef.child("images/" + user.getUserId()+ ".jpg");
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-            byte[] data = baos.toByteArray();
-            UploadTask uploadTask = imageStorageRef.putBytes(data);
-            Task<Uri> urlTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
-                @Override
-                public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
-
-                    if (!task.isSuccessful()) {
-                        throw task.getException();
-                    }
-                    return imageStorageRef.getDownloadUrl();
+                if(!password.equals(confirm_password))
+                {
+                    Toast.makeText(getApplicationContext(), "Confirm password does not match", Toast.LENGTH_SHORT).show();
                 }
-            }).addOnCompleteListener(new OnCompleteListener<Uri>() {
-                @Override
-                public void onComplete(@NonNull Task<Uri> task) {
-                    if (task.isSuccessful()) {
-                        Uri downloadUri = task.getResult();
-                        Log.d(TAG, "URL : " + downloadUri);
-                        Picasso.get().load(downloadUri);
-                        user.setProfilePhoto(downloadUri.toString());
-                        HashMap mapUser = user.toHashMap();
-                        HelperAddNewUSer(mapUser);
-                    }
-                }
-            });
-
-
-
-        }else {
-            Log.d(TAG,"Profile set to defaylt");
-            user.setProfilePhoto("default");
-            HashMap mapUser = user.toHashMap();
-            HelperAddNewUSer(mapUser);
+            }
+            return false;
         }
-
     }
 
-    private void HelperAddNewUSer(final HashMap mapUser){
-        mAuth.createUserWithEmailAndPassword(et_email.getText().toString().trim(), et_password.toString().trim())
-                .addOnCompleteListener(SignUp.this,new OnCompleteListener<AuthResult>() {
+
+    private void SignUpNewUser(String email, String password){
+        mAuth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(SignUp.this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            FirebaseUser firebaseUser = mAuth.getCurrentUser();
-                            FirebaseFirestore db = FirebaseFirestore.getInstance();
-                            db.collection("Users")
-                                    .add(mapUser)
-                                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                        @Override
-                                        public void onSuccess(DocumentReference documentReference) {
-                                            Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
-                                            Toast.makeText(getApplicationContext(), "User created successfully.",
-                                                    Toast.LENGTH_SHORT).show();
-                                            FirebaseAuth.getInstance().signOut();
-                                            finish();
-                                        }
-                                    })
-                                    .addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            Log.w(TAG, "Error adding document", e);
-                                        }
-                                    });
-
-
+                            Toast.makeText(SignUp.this, "Sign Up Successful", Toast.LENGTH_SHORT).show();
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            Intent intent = new Intent(SignUp.this, SetUpProfile.class);
+                            intent.putExtra(MainActivity.userKey,user.getEmail());
+                            startActivity(intent);
+                            finish();
 
                         } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                            Toast.makeText(getApplicationContext(), "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
-
+                            Toast.makeText(SignUp.this, "Sign Up failed.",Toast.LENGTH_SHORT).show();
+                            Log.d("demo", "createUserWithEmail:failure", task.getException());
                         }
-
-
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error in mauth ", e);
                     }
                 });
     }
+
 }
 
 

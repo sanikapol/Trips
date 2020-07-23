@@ -1,34 +1,34 @@
 {
   "project_info": {
-    "project_number": "531257020198",
-    "firebase_url": "https://in-class-11-e8896.firebaseio.com",
-    "project_id": "in-class-11-e8896",
-    "storage_bucket": "in-class-11-e8896.appspot.com"
+    "project_number": "874269413433",
+    "firebase_url": "https://mytripsapplication.firebaseio.com",
+    "project_id": "mytripsapplication",
+    "storage_bucket": "mytripsapplication.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:531257020198:android:1863b63c12b986b7d8fbe7",
+        "mobilesdk_app_id": "1:874269413433:android:a35f9c078e3bdf4aafbde8",
         "android_client_info": {
           "package_name": "com.example.mytripsapplication"
         }
       },
       "oauth_client": [
         {
-          "client_id": "531257020198-1sprjraupshjkcv9e575khck3ubtgc1o.apps.googleusercontent.com",
+          "client_id": "874269413433-ehhnptqb6n96eb0gu05ko6omovilh2st.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCzBPNqi0MlrDC_WsxQh-nFYwqcGLZ_NXc"
+          "current_key": "AIzaSyDsnOykqXt8W9RGwVVH8IZYiBvrfkpUZ-M"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "531257020198-1sprjraupshjkcv9e575khck3ubtgc1o.apps.googleusercontent.com",
+              "client_id": "874269413433-ehhnptqb6n96eb0gu05ko6omovilh2st.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

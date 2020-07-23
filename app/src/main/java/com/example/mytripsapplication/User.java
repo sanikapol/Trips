@@ -1,17 +1,14 @@
 package com.example.mytripsapplication;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class User {
-    private static final AtomicInteger count = new AtomicInteger(0);
+public class User implements Serializable {
     private String fname, lname, email,gender,profilePhoto;
-    private int userId;
-    private ArrayList<Trip> trips;
 
     public User(String fname, String lname, String email) {
-        this.userId = count.incrementAndGet();
         this.fname = fname;
         this.lname = lname;
         this.email = email;
@@ -61,33 +58,25 @@ public class User {
         this.profilePhoto = profilePhoto;
     }
 
-    public int getUserId() {
-        return userId;
-    }
-
-    public void setUserId(int userId) {
-        this.userId = userId;
-    }
-
-    public ArrayList<Trip> getTrips() {
-        return trips;
-    }
-
-    public void setTrips(ArrayList<Trip> trips) {
-        this.trips = trips;
-    }
 
     public HashMap toHashMap(){
         HashMap<String, Object> userMap = new HashMap();
-        userMap.put("userId",this.userId);
         userMap.put("fname",this.fname);
         userMap.put("lname",this.lname);
         userMap.put("email",this.email);
         userMap.put("gender",this.gender);
         userMap.put("profilePhoto",this.profilePhoto);
-        userMap.put("MyTrips",this.trips);
         return  userMap;
     }
 
-
+    @Override
+    public String toString() {
+        return "User{" +
+                "fname='" + fname + '\'' +
+                ", lname='" + lname + '\'' +
+                ", email='" + email + '\'' +
+                ", gender='" + gender + '\'' +
+                ", profilePhoto='" + profilePhoto + '\'' +
+                '}';
+    }
 }

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tv_dest"
+            android:layout_width="291dp"
+            android:layout_height="39dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="20dp"
+            android:text="TextView"
+            android:textColor="@android:color/black"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/iv_join"
+            android:layout_width="70dp"
+            android:layout_height="38dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="19dp"
+            app:layout_constraintStart_toEndOf="@+id/tv_dest"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/join" />
+
+        <TextView
+            android:id="@+id/tv_ownerLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="5dp"
+            android:text="Owner:"
+            android:textColor="@android:color/black"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_dest" />
+
+        <TextView
+            android:id="@+id/tv_tripOwner"
+            android:layout_width="223dp"
+            android:layout_height="18dp"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="5dp"
+            android:text="TextView"
+            android:textColor="@android:color/black"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@+id/tv_ownerLabel"
+            app:layout_constraintTop_toBottomOf="@+id/tv_dest" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</LinearLayout>

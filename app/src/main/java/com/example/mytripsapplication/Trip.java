@@ -1,17 +1,20 @@
 package com.example.mytripsapplication;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 
-public class Trip {
+public class Trip implements Serializable {
     private double latitude,longitude;
     private String title,coverPhoto,location,tripId;
-    private int creatorId;
-    private ArrayList<Integer> users;
-    private ArrayList<Message> chatRoom;
+    private String creatorId;
+    private ArrayList<String> users;
+    private ArrayList<Place> places;
+    private boolean expanded;
 
     public Trip() {
+        this.places = new ArrayList<Place>();
     }
 
 
@@ -55,29 +58,22 @@ public class Trip {
         this.tripId = tripId;
     }
 
-    public int getCreatorId() {
+    public String getCreatorId() {
         return creatorId;
     }
 
-    public void setCreatorId(int creatorId) {
+    public void setCreatorId(String creatorId) {
         this.creatorId = creatorId;
     }
 
-    public ArrayList<Integer> getUsers() {
+    public ArrayList<String> getUsers() {
         return users;
     }
 
-    public void setUsers(ArrayList<Integer> users) {
+    public void setUsers(ArrayList<String> users) {
         this.users = users;
     }
 
-    public ArrayList<Message> getChatRoom() {
-        return chatRoom;
-    }
-
-    public void setChatRoom(ArrayList<Message> chatRoom) {
-        this.chatRoom = chatRoom;
-    }
 
     public String getLocation() {
         return location;
@@ -85,6 +81,22 @@ public class Trip {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public ArrayList<Place> getPlaces() {
+        return places;
+    }
+
+    public void setPlaces(ArrayList<Place> places) {
+        this.places = places;
+    }
+
+    public boolean isExpanded() {
+        return expanded;
+    }
+
+    public void setExpanded(boolean expanded) {
+        this.expanded = expanded;
     }
 
     @Override
@@ -98,7 +110,7 @@ public class Trip {
                 ", tripId=" + tripId +
                 ", creatorId=" + creatorId +
                 ", users=" + users +
-                ", chatRoom=" + chatRoom +
+                ", places=" + places +
                 '}';
     }
 
@@ -112,7 +124,8 @@ public class Trip {
         tripMap.put("longitude",this.longitude);
         tripMap.put("creatorId",this.creatorId);
         tripMap.put("users",this.users);
-        tripMap.put("chatroom",this.chatRoom);
+        tripMap.put("places",this.places);
+        tripMap.put("expanded",this.expanded);
         return tripMap;
     }
 

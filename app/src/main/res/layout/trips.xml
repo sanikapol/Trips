@@ -1,19 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    tools:context=".Trips">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <TextView
-            android:id="@+id/tv_tripNameOnRecycler"
+            android:id="@+id/tv_destination"
             android:layout_width="291dp"
             android:layout_height="39dp"
             android:layout_marginStart="20dp"
-            android:layout_marginTop="25dp"
+            android:layout_marginTop="20dp"
             android:text="TextView"
             android:textColor="@android:color/black"
             android:textSize="20sp"
@@ -21,47 +24,71 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:id="@+id/tv_tripDescOnRecycler"
-            android:layout_width="371dp"
-            android:layout_height="39dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="10dp"
-            android:text="TextView"
-            android:textColor="@android:color/black"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_tripNameOnRecycler" />
-
         <ImageView
             android:id="@+id/iv_location"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="28dp"
-            app:layout_constraintStart_toEndOf="@+id/tv_tripNameOnRecycler"
-            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintStart_toEndOf="@+id/tv_owner"
+            app:layout_constraintTop_toBottomOf="@+id/iv_addPlace"
             app:srcCompat="@drawable/location" />
 
         <ImageView
             android:id="@+id/iv_addPlace"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="28dp"
-            app:layout_constraintStart_toEndOf="@+id/iv_location"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="20dp"
+            app:layout_constraintStart_toEndOf="@+id/tv_destination"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/addplace" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/placesInTripRecycler"
-            android:layout_width="322dp"
+            android:layout_width="390dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="80dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="5dp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_tripDescOnRecycler" />
+            app:layout_constraintTop_toBottomOf="@+id/textView5" />
+
+        <TextView
+            android:id="@+id/textView5"
+            android:layout_width="100dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="5dp"
+            android:text="Owner:"
+            android:textColor="@android:color/black"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_destination" />
+
+        <TextView
+            android:id="@+id/tv_owner"
+            android:layout_width="200dp"
+            android:layout_height="25dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="7dp"
+            android:text="TextView"
+            android:textColor="@android:color/black"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@+id/textView5"
+            app:layout_constraintTop_toBottomOf="@+id/tv_destination" />
+
+        <ImageView
+            android:id="@+id/iv_chat"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="20dp"
+            app:layout_constraintStart_toEndOf="@+id/iv_addPlace"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/chat" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </LinearLayout>

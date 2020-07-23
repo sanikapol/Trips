@@ -1,15 +1,19 @@
 package com.example.mytripsapplication;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -23,7 +27,9 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import org.apache.commons.io.IOUtils;
@@ -49,9 +55,9 @@ public class AddTrip extends AppCompatActivity implements CityAdapter.iCity{
     HashMap<String,String> cities;
     ArrayList<String> cityList;
     String selectedCity;
-    private FirebaseAuth mAuth;
-    private FirebaseAuth.AuthStateListener mAuthStateListner;
-    FirebaseUser currentUser;
+    FirebaseFirestore db;
+    androidx.appcompat.widget.Toolbar toolbar;
+    private String loggedInUserEmail;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,7 +66,7 @@ public class AddTrip extends AppCompatActivity implements CityAdapter.iCity{
 
         setTitle("Add Trip");
 
-        et_tripName = findViewById(R.id.et_tripName);
+        //et_tripName = findViewById(R.id.et_tripName);
         et_searchCity = findViewById(R.id.et_searchCity);
         btn_search = findViewById(R.id.btn_search);
         btn_addTrip = findViewById(R.id.btn_addTrip);
@@ -69,26 +75,25 @@ public class AddTrip extends AppCompatActivity implements CityAdapter.iCity{
         cityRecycler.setHasFixedSize(true);
         cityRecycler.setLayoutManager(new LinearLayoutManager(this));
         cityRecycler.setAdapter(mAdapter);
+        toolbar = findViewById(R.id.app_bar);
+        setSupportActionBar(toolbar);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
 
 
         if (isConnected()) {
-            mAuth = FirebaseAuth.getInstance();
-            mAuthStateListner = new FirebaseAuth.AuthStateListener() {
-                FirebaseUser user = mAuth.getCurrentUser();
-                @Override
-                public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                    if(user!=null){
-                        Log.d(TAG, "Add Trip user email : " + user.getEmail());
-                        currentUser = user;
-                    }
-                }
-            };
+
+            if(getIntent()!=null && getIntent().getExtras()!=null){
+                loggedInUserEmail = (String) getIntent().getExtras().getString(Trips.loggedInUserEmail);
+                Log.d(TAG, "User email in intent  " + loggedInUserEmail );
+            }
+
 
             btn_search.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(et_tripName.getText().toString().trim().equals("") || et_searchCity.getText().toString().trim().equals("")){
-                        Toast.makeText(AddTrip.this,"Trip name and city cannot be blank!",Toast.LENGTH_SHORT).show();
+                    if(et_searchCity.getText().toString().trim().equals("")){
+                        Toast.makeText(AddTrip.this,"Please enter a destination!",Toast.LENGTH_SHORT).show();
                     }
                     else{
                         new GetCityList().execute(et_searchCity.getText().toString().trim());
@@ -99,8 +104,8 @@ public class AddTrip extends AppCompatActivity implements CityAdapter.iCity{
             btn_addTrip.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(et_tripName.getText().toString().trim().equals("") || et_searchCity.getText().toString().trim().equals("")){
-                        Toast.makeText(AddTrip.this,"Trip name and city cannot be blank!",Toast.LENGTH_SHORT).show();
+                    if(et_searchCity.getText().toString().trim().equals("")){
+                        Toast.makeText(AddTrip.this,"Please enter a destination!",Toast.LENGTH_SHORT).show();
                     }
                     else{
                         Log.d(TAG,"selectedCity" + selectedCity);
@@ -129,11 +134,6 @@ public class AddTrip extends AppCompatActivity implements CityAdapter.iCity{
         return true;
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        mAuth.addAuthStateListener(mAuthStateListner);
-    }
 
     class GetCityList extends AsyncTask<String,Void, HashMap<String,String>> {
         @Override
@@ -232,7 +232,7 @@ public class AddTrip extends AppCompatActivity implements CityAdapter.iCity{
         @Override
         protected void onPostExecute(final Trip trip) {
             super.onPostExecute(trip);
-            AddTrip(trip);
+            GetTripDataFromDatabase(trip);
         }
     }
 
@@ -242,51 +242,89 @@ public class AddTrip extends AppCompatActivity implements CityAdapter.iCity{
         selectedCity = cities.get(cityList.get(position));
     }
 
-    private void AddTrip(final Trip trip){
-        trip.setTitle(et_tripName.getText().toString().trim());
+    private void GetTripDataFromDatabase(final Trip trip){
+        //trip.setTitle(et_tripName.getText().toString().trim());
         trip.setLocation(et_searchCity.getText().toString().trim());
         Log.d(TAG,"trip details: " + trip.toString());
 
-
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db = FirebaseFirestore.getInstance();
         db.collection("Trips")
-                .whereEqualTo("description", trip.getLocation())
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            Log.d(TAG,"size of trips :" + task.getResult().size());
-                            if(task.getResult().isEmpty()){
-                                //Adding trip to the database;
-                                FirebaseFirestore db = FirebaseFirestore.getInstance();
-                                HashMap<String,Object> tripMap = trip.toHashMap();
-                                db.collection("Trips")
-                                        .add(tripMap)
-                                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                            @Override
-                                            public void onSuccess(DocumentReference documentReference) {
-                                                Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
-                                            }
-                                        })
-                                        .addOnFailureListener(new OnFailureListener() {
-                                            @Override
-                                            public void onFailure(@NonNull Exception e) {
-                                                Log.w(TAG, "Error adding document", e);
-                                            }
-                                        });
-                            }
-                            else {
+            .whereEqualTo("tripId", trip.getTripId())
+            .get()
+            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()){
+                        if(task.getResult().isEmpty()){
+                            //Adding trip to the database;
+                            trip.setCreatorId(loggedInUserEmail);
+                            ArrayList<String> users = new ArrayList<>();
+                            users.add(loggedInUserEmail);
+                            trip.setUsers(users);
+                            HashMap<String,Object> tripMap = trip.toHashMap();
+                            Log.d(TAG,"Trip to add : " + trip.toString());
+                            AddTrip(tripMap,trip.getTripId());
+                        }else{
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                if(document.getString("location").equals(et_searchCity.getText().toString().trim())){
+                                    Trip t = document.toObject(Trip.class);
+                                    ArrayList<String> users = t.getUsers();
+                                    if(users.contains(loggedInUserEmail)){
+                                        Toast.makeText(AddTrip.this, "You have alreay added this trip", Toast.LENGTH_SHORT).show();
+                                    }else {
+                                        users.add(loggedInUserEmail);
+                                        AddUserToTrip(document.getId(),users);
+                                    }
+                                }
+                                else{
 
-                                Toast.makeText(AddTrip.this, "Trip already exists", Toast.LENGTH_SHORT).show();
-
+                                }
                             }
-                        } else {
-                            Log.d(TAG, "Error getting documents: ", task.getException());
                         }
-                        finish();
+                    }else {
+                        Log.d(TAG, "Error getting documents: ", task.getException());
+                    }
+                    finish();
+                }
+            });
+    }
+
+    private void AddTrip(HashMap tripMap, String tripId){
+        db.collection("Trips").document(tripId)
+                .set(tripMap)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "Trip added successfully");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error writing document", e);
                     }
                 });
+    }
+
+    private void AddUserToTrip(String docId, ArrayList<String> users){
+        db = FirebaseFirestore.getInstance();
+        DocumentReference tripRef = db.collection("Trips").document(docId);
+        tripRef
+            .update("users", users)
+            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    Toast.makeText(AddTrip.this, "A trip with this destination already exists. Adding it to your trips", Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "User added to the trip successfully!");
+                    finish();
+                }
+            })
+            .addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.w(TAG, "Error updating document", e);
+                }
+            });
     }
 
 }
