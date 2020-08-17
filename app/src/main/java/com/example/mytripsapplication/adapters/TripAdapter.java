@@ -1,4 +1,4 @@
-package com.example.mytripsapplication;
+package com.example.mytripsapplication.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -11,6 +11,9 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+
+import com.example.mytripsapplication.R;
+import com.example.mytripsapplication.model.Trip;
 
 import java.util.ArrayList;
 

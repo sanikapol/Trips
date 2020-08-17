@@ -1,4 +1,6 @@
-package com.example.mytripsapplication;
+package com.example.mytripsapplication.model;
+
+import com.example.mytripsapplication.model.Place;
 
 import java.io.Serializable;
 import java.util.ArrayList;

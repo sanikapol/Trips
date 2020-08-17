@@ -19,9 +19,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.Task;
+import com.example.mytripsapplication.adapters.PlacesInTripAdapter;
+import com.example.mytripsapplication.adapters.TripAdapter;
+import com.example.mytripsapplication.model.Trip;
+import com.example.mytripsapplication.model.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -32,7 +33,7 @@ import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
-public class Trips extends AppCompatActivity implements TripAdapter.iTrip,PlacesInTripAdapter.iPlaceInTrip{
+public class Trips extends AppCompatActivity implements TripAdapter.iTrip, PlacesInTripAdapter.iPlaceInTrip{
 
     private static String TAG = "demo";
     private RecyclerView tripRecycler;
@@ -45,7 +46,6 @@ public class Trips extends AppCompatActivity implements TripAdapter.iTrip,Places
     static String loggedInUserEmail = "UserEmail";
     static String tripToAddPlaces = "TripToAddPlaces";
     static String locatePlaces = "LocatePlaces";
-    static String tripForChat = "TripForChat";
     private int SELECTED_USER = 1;
 
     @Override
@@ -195,10 +195,17 @@ public class Trips extends AppCompatActivity implements TripAdapter.iTrip,Places
     @Override
     public void openChatroom(int position) {
         Trip trip = trips.get(position);
-        Intent chatroom = new Intent(Trips.this,ChatRoom.class);
-        chatroom.putExtra(tripForChat,trip);
-        chatroom.putExtra(loggedInUserEmail,user.getEmail());
-        startActivity(chatroom);
+        if(trip.getUsers().size()>1) {
+            Intent chat = new Intent(Trips.this, Chat.class);
+            chat.putExtra(AppConstants.TRIPID, trip.getTripId());
+            chat.putExtra(AppConstants.USERS_IN_THE_TRIP, trip.getUsers());
+            chat.putExtra(AppConstants.CREATOR_ID, trip.getCreatorId());
+            chat.putExtra(loggedInUserEmail, user.getEmail());
+            startActivity(chat);
+        }
+        else{
+            Toast.makeText(Trips.this, "There are no other users in this group", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override

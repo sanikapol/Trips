@@ -1,4 +1,4 @@
-package com.example.mytripsapplication;
+package com.example.mytripsapplication.adapters;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +9,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.mytripsapplication.R;
+import com.example.mytripsapplication.model.Place;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
